@@ -1,173 +1,302 @@
 module.exports = {
-  name: 'Parse From Stored Json',
-  section: 'JSON Things',
+  //---------------------------------------------------------------------
+  // Created by General Wrex
+  // Add URL to json object,
+  // add path to the object you want from the json
+  // set your variable type and name
+  // example URL: https://api.github.com/repos/HellionCommunity/HellionExtendedServer/releases/latest
+  // example Path: name
+  // will return object.name
+  // in this example the variable would contain "[DEV] Version 1.2.2.3"
+  //---------------------------------------------------------------------
 
-  subtitle (data) {
-    return `${data.varName}`
+  //---------------------------------------------------------------------
+  // Action Name
+  //
+  // This is the name of the action displayed in the editor.
+  //---------------------------------------------------------------------
+
+  name: "Parse From Stored Json",
+
+  //---------------------------------------------------------------------
+  // Action Section
+  //
+  // This is the section the action will fall into.
+  //---------------------------------------------------------------------
+
+  section: "JSON Things",
+
+  //---------------------------------------------------------------------
+  // DBM Mods Manager Variables (Optional but nice to have!)
+  //
+  // These are variables that DBM Mods Manager uses to show information
+  // about the mods for people to see in the list.
+  //---------------------------------------------------------------------
+
+  // Who made the mod (If not set, defaults to "DBM Mods")
+  author: "General Wrex",
+
+  // The version of the mod (Defaults to 1.0.0)
+  version: "1.8.2",
+
+  // A short description to show on the mod line for this mod (Must be on a single line)
+  short_description: "INSERT DESCRIPTION HERE",
+
+  // If it depends on any other mods by name, ex: WrexMODS if the mod uses something from WrexMods
+  depends_on_mods: ["WrexMODS"],
+
+  //---------------------------------------------------------------------
+
+  //---------------------------------------------------------------------
+  // Action Subtitle
+  //
+  // This function generates the subtitle displayed next to the name.
+  //---------------------------------------------------------------------
+
+  subtitle: function(data) {
+    return `${data.varName}`;
   },
 
-  variableStorage (data, varType) {
-    const type = parseInt(data.storage)
-    if (type !== varType) return
+  //---------------------------------------------------------------------
+  // Action Storage Function
+  //
+  // Stores the relevant variable info for the editor.
+  //---------------------------------------------------------------------
 
-    if (varType === 'object') return [data.varName, 'JSON Object']
+  variableStorage: function(data, varType) {
+    const type = parseInt(data.storage);
+    if (type !== varType) return;
 
-    return [data.varName, `JSON ${varType} Value`]
+    if (varType == typeof object) return [data.varName, "JSON Object"];
+    else {
+      return [data.varName, "JSON " + varType + " Value"];
+    }
   },
 
-  fields: ['behavior', 'varStorage', 'jsonObjectVarName', 'path', 'storage', 'varName'],
+  //---------------------------------------------------------------------
+  // Action Fields
+  //
+  // These are the fields for the action. These fields are customized
+  // by creating elements with corresponding IDs in the HTML. These
+  // are also the names of the fields stored in the action's JSON data.
+  //---------------------------------------------------------------------
 
-  html (isEvent, data) {
+  fields: ["behavior", "jsonObjectVarName", "path", "storage", "varName"],
+
+  //---------------------------------------------------------------------
+  // Command HTML
+  //
+  // This function returns a string containing the HTML used for
+  // editing actions.
+  //
+  // The "isEvent" parameter will be true if this action is being used
+  // for an event. Due to their nature, events lack certain information,
+  // so edit the HTML to reflect this.
+  //
+  // The "data" parameter stores constants for select elements to use.
+  // Each is an array: index 0 for commands, index 1 for events.
+  // The names are: sendTargets, members, roles, channels,
+  //                messages, servers, variables
+  //---------------------------------------------------------------------
+
+  html: function(isEvent, data) {
     return `
-<div style="margin: 0; overflow-y: none;">
-    <div>
-        <p>
-        <u>Mod Info:</u><br>
-        Authors: ${this.author}
-        </p>
-    </div><br>
-    <div style="width: 80%;">
-        <div style="float: left; width: 35%;">
-              Variable:<br>
-              <select id="varStorage" class="round" onchange="glob.refreshVariableList(this)">
-                  ${data.variables[1]}
-              </select>
-        </div>
-        <div id="jsonObjectVarNameContainer" style="float: right; width: 60%;">
-            Variable Name:<br>
-            <input id="jsonObjectVarName" class="round" type="text" list="variableList">
-        </div><br><br><br>
-        <div id="pathContainer" tyle="padding-top: 8px;">
-            JSON Path: (supports the usage of <a href="http://goessner.net/articles/JsonPath/index.html#e2" target="_blank">JSON Path (Regex)</a>)<br>
-            <input id="path" class="round" ;" type="text"><br>
-        </div>
-    </div>
-    <div style="width: 80%;">
-        <div style="float: left; width: 30%;">
-            <label for="storage">
-                <font color="white">Store In:</font>
-            </label>
-            <select id="storage" class="round" onchange="glob.variableChange(this, 'varNameContainer')">
-                ${data.variables[1]}
-            </select>
-        </div>
-        <div id="varNameContainer" style="margin-left: 10px; float: left; width: 65%;">
-            <label for="varName">
-                <font color="white">Variable Name:</font>
-            </label>
-            <input id="varName" class="round" type="text">
-        </div>
-    </div>
-    <div>
-        <div style="float: left;">
-            <br>
-            <label for="behavior">
-                <font color="white">End Behavior:</font>
-            </label>
-            <select id="behavior" class="round" ;>
-                <option value="0" selected>Call Next Action Automatically</option>
-                <option value="1">Do Not Call Next Action</option>
-            </select>
-        </div>
-        <div style="float: left; margin-left: 10px; width: 30%;">
-            <br>
-            <label for="debugMode">
-                <font color="white">Debug Mode:</font>
-            </label>
-            <select id="debugMode" class="round">
-                <option value="0" selected>Disabled</option>
-                <option value="1">Enabled</option>
-            </select>
-        </div>
-    </div>
-</div>
-`
+	<div id="mod-container">
+	<div id="main-body">
+
+		<div id="wrexdiv" style="width: 550px; height: 350px; overflow-y: scroll;">
+			<div>
+				<p>
+					<u>Mod Info:</u><br>
+					Created by General Wrex! Edited and fixed by SeikiMatt!
+				</p>
+			</div>
+			<div>
+				<div><br>
+					Stored JSON Variable Name: <br>
+					<input id="jsonObjectVarName" class="round" style="width: 100%;" type="text"><br>
+				</div><br>
+				JSON Path: (supports the usage of <a href="http://goessner.net/articles/JsonPath/index.html#e2" target="_blank">JSON
+					Path (Regex)</a>))<br>
+				<input id="path" class="round" ; style="width: 100%;" type="text"><br>
+				<div style="display: flex;"><br>
+					<div style="margin-right: 10px; width: 40%;">
+						Store In:<br>
+						<select id="storage" class="round" onchange="glob.variableChange(this, 'varNameContainer')">
+							${data.variables[0]}
+						</select>
+					</div>
+					<div id="varNameContainer" style="margin-left: 10px; width: 60%;">
+						Variable Name:<br>
+						<input id="varName" class="round" type="text" style="width: 100%;">
+					</div>
+				</div>
+				<div>
+					<br>
+					End Behavior:<br>
+					<select id="behavior" class="round">
+						<option value="0" selected>Call Next Action Automatically</option>
+						<option value="1">Do Not Call Next Action</option>
+					</select>
+				</div>
+
+			</div>
+
+		</div>
+		<style>
+			#mod-container {
+				width: 570px;
+				height: 359px;
+				overflow-y: none;
+			}
+
+			#main-body {
+				padding: 15px;
+				overflow-y: none;
+			}
+
+			.action-input {
+				margin: 0 !important;
+				padding: 0 !important;
+			}
+
+			body {
+				margin: 0;
+				overflow-y: none;
+			}
+		</style>
+	</div>
+</div>`;
   },
 
-  init () {
-    const { glob, document } = this
-    glob.variableChange(document.getElementById('storage'), 'varNameContainer')
-    glob.refreshVariableList(document.getElementById('storage'))
+  //---------------------------------------------------------------------
+  // Action Editor Init Code
+  //
+  // When the HTML is first applied to the action editor, this code
+  // is also run. This helps add modifications or setup reactionary
+  // functions for the DOM elements.
+  //---------------------------------------------------------------------
+
+  init: function() {
+    const { glob, document } = this;
+    glob.variableChange(document.getElementById("storage"), "varNameContainer");
   },
 
-  action (cache) {
-    const Mods = this.getMods()
-    const data = cache.actions[cache.index]
-    const varName = this.evalMessage(data.varName, cache)
-    const storage = parseInt(data.storage)
-    const type = parseInt(data.varStorage)
-    const jsonObjectVarName = this.evalMessage(data.jsonObjectVarName, cache)
-    const path = this.evalMessage(data.path, cache)
-    const jsonRaw = this.getVariable(type, jsonObjectVarName, cache)
-    const DEBUG = parseInt(data.debugMode)
+  //---------------------------------------------------------------------
+  // Action Bot Function
+  //
+  // This is the function for the action within the Bot's Action class.
+  // Keep in mind event calls won't have access to the "msg" parameter,
+  // so be sure to provide checks for variable existance.
+  //---------------------------------------------------------------------
 
-    let jsonData = jsonRaw
-    if (typeof jsonRaw !== 'object') {
-      jsonData = JSON.parse(jsonRaw)
+  action: function(cache) {
+    var WrexMODS = this.getWrexMods();
+
+    const data = cache.actions[cache.index];
+    let result;
+    const varName = this.evalMessage(data.varName, cache);
+    const storage = parseInt(data.storage);
+    const jsonObjectVarName = this.evalMessage(data.jsonObjectVarName, cache);
+    const path = this.evalMessage(data.path, cache);
+
+    const jsonRaw = this.getVariable(storage, jsonObjectVarName, cache);
+
+    if (typeof jsonRaw !== "object") {
+      var jsonData = JSON.parse(jsonRaw);
+    } else {
+      var jsonData = jsonRaw;
     }
 
     try {
       if (path && jsonData) {
-        let outData = Mods.jsonPath(jsonData, path)
+        var outData = WrexMODS.jsonPath(jsonData, path);
 
         // if it dont work, try to go backwards one path
-        if (outData === false) {
-          outData = Mods.jsonPath(jsonData, `$.${path}`)
+        if (outData == false) {
+          outData = WrexMODS.jsonPath(jsonData, "$." + path);
         }
 
         // if it still dont work, try to go backwards two paths
-        if (outData === false) {
-          outData = Mods.jsonPath(jsonData, `$..${path}`)
+        if (outData == false) {
+          outData = WrexMODS.jsonPath(jsonData, "$.." + path);
         }
 
-        if (DEBUG) console.log(outData)
+        console.log(outData);
 
         try {
-          JSON.parse(JSON.stringify(outData))
+          var test = JSON.parse(JSON.stringify(outData));
         } catch (error) {
-          const errorJson = JSON.stringify({ error, success: false })
-          this.storeValue(errorJson, storage, varName, cache)
-          console.error(error.stack ? error.stack : error)
+          var errorJson = JSON.stringify({ error: error, success: false });
+          this.storeValue(errorJson, storage, varName, cache);
+          console.error(error.stack ? error.stack : error);
         }
 
-        // eslint-disable-next-line no-eval
-        const outValue = eval(JSON.stringify(outData), cache)
+        var outValue = eval(JSON.stringify(outData), cache);
 
         if (outData.success != null || outValue.success != null) {
-          const errorJson = JSON.stringify({
-            error: 'error',
+          var errorJson = JSON.stringify({
+            error: "error",
             statusCode: 0,
             success: false
-          })
-          this.storeValue(errorJson, storage, varName, cache)
-          console.log(`WebAPI Parser: Error Invalid JSON, is the Path set correctly? [${path}]`)
-        } else if (outValue.success != null || !outValue) {
-          const errorJson = JSON.stringify({
-            error: 'error',
-            statusCode: 0,
-            success: false
-          })
-          this.storeValue(errorJson, storage, varName, cache)
-          console.log(`WebAPI Parser: Error Invalid JSON, is the Path set correctly? [${path}]`)
+          });
+          this.storeValue(errorJson, storage, varName, cache);
+          console.log(
+            "WebAPI Parser: Error Invalid JSON, is the Path set correctly? [" +
+              path +
+              "]"
+          );
         } else {
-          this.storeValue(outValue, storage, varName, cache)
-          if (DEBUG) console.log(`WebAPI Parser: JSON Data values starting from [${path}] stored to: [${varName}]`)
+          if (outValue.success != null || !outValue) {
+            var errorJson = JSON.stringify({
+              error: error,
+              statusCode: statusCode,
+              success: false
+            });
+            this.storeValue(errorJson, storage, varName, cache);
+            console.log(
+              "WebAPI Parser: Error Invalid JSON, is the Path set correctly? [" +
+                path +
+                "]"
+            );
+          } else {
+            this.storeValue(outValue, storage, varName, cache);
+            console.log(
+              "WebAPI Parser: JSON Data values starting from [" +
+                path +
+                "] stored to: [" +
+                varName +
+                "]"
+            );
+          }
         }
       }
     } catch (error) {
-      const errorJson = JSON.stringify({
-        error,
+      var errorJson = JSON.stringify({
+        error: error,
         statusCode: 0,
         success: false
-      })
-      this.storeValue(errorJson, storage, varName, cache)
-      console.error(`WebAPI Parser: Error: ${errorJson} stored to: [${varName}]`)
+      });
+      this.storeValue(errorJson, storage, varName, cache);
+
+      console.error(
+        "WebAPI Parser: Error: " + errorJson + " stored to: [" + varName + "]"
+      );
     }
 
-    if (data.behavior === '0') {
-      this.callNextAction(cache)
+    if (data.behavior === "0") {
+      this.callNextAction(cache);
     }
   },
 
-  mod () {}
-}
+  //---------------------------------------------------------------------
+  // Action Bot Mod
+  //
+  // Upon initialization of the bot, this code is run. Using the bot's
+  // DBM namespace, one can add/modify existing functions if necessary.
+  // In order to reduce conflictions between mods, be sure to alias
+  // functions you wish to overwrite.
+  //---------------------------------------------------------------------
+
+  mod: function(DBM) {}
+}; // End of module

@@ -1,59 +1,60 @@
 module.exports = {
-	//---------------------------------------------------------------------
-	// Action Name
-	//
-	// This is the name of the action displayed in the editor.
-	//---------------------------------------------------------------------
 
-	name: "Set Member Voice Channel",
+//---------------------------------------------------------------------
+// Action Name
+//
+// This is the name of the action displayed in the editor.
+//---------------------------------------------------------------------
 
-	//---------------------------------------------------------------------
-	// Action Section
-	//
-	// This is the section the action will fall into.
-	//---------------------------------------------------------------------
+name: "Set Member Voice Channel",
 
-	section: "Member Control",
+//---------------------------------------------------------------------
+// Action Section
+//
+// This is the section the action will fall into.
+//---------------------------------------------------------------------
 
-	//---------------------------------------------------------------------
-	// Action Subtitle
-	//
-	// This function generates the subtitle displayed next to the name.
-	//---------------------------------------------------------------------
+section: "Member Control",
 
-	subtitle: function(data) {
-		const members = ["Mentioned User", "Command Author", "Temp Variable", "Server Variable", "Global Variable"];
-		return `${members[parseInt(data.member)]}`;
-	},
+//---------------------------------------------------------------------
+// Action Subtitle
+//
+// This function generates the subtitle displayed next to the name.
+//---------------------------------------------------------------------
 
-	//---------------------------------------------------------------------
-	// Action Fields
-	//
-	// These are the fields for the action. These fields are customized
-	// by creating elements with corresponding IDs in the HTML. These
-	// are also the names of the fields stored in the action's JSON data.
-	//---------------------------------------------------------------------
+subtitle: function(data) {
+	const members = ['Mentioned User', 'Command Author', 'Temp Variable', 'Server Variable', 'Global Variable'];
+	return `${members[parseInt(data.member)]}`;
+},
 
-	fields: ["member", "varName", "channel", "varName2", "reason"],
+//---------------------------------------------------------------------
+// Action Fields
+//
+// These are the fields for the action. These fields are customized
+// by creating elements with corresponding IDs in the HTML. These
+// are also the names of the fields stored in the action's JSON data.
+//---------------------------------------------------------------------
 
-	//---------------------------------------------------------------------
-	// Command HTML
-	//
-	// This function returns a string containing the HTML used for
-	// editting actions.
-	//
-	// The "isEvent" parameter will be true if this action is being used
-	// for an event. Due to their nature, events lack certain information,
-	// so edit the HTML to reflect this.
-	//
-	// The "data" parameter stores constants for select elements to use.
-	// Each is an array: index 0 for commands, index 1 for events.
-	// The names are: sendTargets, members, roles, channels,
-	//                messages, servers, variables
-	//---------------------------------------------------------------------
+fields: ["member", "varName", "channel", "varName2"],
 
-	html: function(isEvent, data) {
-		return `
+//---------------------------------------------------------------------
+// Command HTML
+//
+// This function returns a string containing the HTML used for
+// editting actions. 
+//
+// The "isEvent" parameter will be true if this action is being used
+// for an event. Due to their nature, events lack certain information, 
+// so edit the HTML to reflect this.
+//
+// The "data" parameter stores constants for select elements to use. 
+// Each is an array: index 0 for commands, index 1 for events.
+// The names are: sendTargets, members, roles, channels, 
+//                messages, servers, variables
+//---------------------------------------------------------------------
+
+html: function(isEvent, data) {
+	return `
 <div style="padding-top: 8px;">
 	<div style="float: left; width: 35%;">
 		Source Member:<br>
@@ -77,65 +78,65 @@ module.exports = {
 		Variable Name:<br>
 		<input id="varName2" class="round" type="text" list="variableList2"><br>
 	</div>
-</div><br><br><br>
-<div>
-  Reason:
-  <input id="reason" placeholder="Optional" class="round" type="text">
-</div>`;
-	},
+</div>`
+},
 
-	//---------------------------------------------------------------------
-	// Action Editor Init Code
-	//
-	// When the HTML is first applied to the action editor, this code
-	// is also run. This helps add modifications or setup reactionary
-	// functions for the DOM elements.
-	//---------------------------------------------------------------------
+//---------------------------------------------------------------------
+// Action Editor Init Code
+//
+// When the HTML is first applied to the action editor, this code
+// is also run. This helps add modifications or setup reactionary
+// functions for the DOM elements.
+//---------------------------------------------------------------------
 
-	init: function() {
-		const { glob, document } = this;
+init: function() {
+	const {glob, document} = this;
 
-		glob.memberChange(document.getElementById("member"), "varNameContainer");
-		glob.channelChange(document.getElementById("channel"), "varNameContainer2");
-	},
+	glob.memberChange(document.getElementById('member'), 'varNameContainer');
+	glob.channelChange(document.getElementById('channel'), 'varNameContainer2');
+},
 
-	//---------------------------------------------------------------------
-	// Action Bot Function
-	//
-	// This is the function for the action within the Bot's Action class.
-	// Keep in mind event calls won't have access to the "msg" parameter,
-	// so be sure to provide checks for variable existance.
-	//---------------------------------------------------------------------
+//---------------------------------------------------------------------
+// Action Bot Function
+//
+// This is the function for the action within the Bot's Action class.
+// Keep in mind event calls won't have access to the "msg" parameter, 
+// so be sure to provide checks for variable existance.
+//---------------------------------------------------------------------
 
-	action: function(cache) {
-		const data = cache.actions[cache.index];
-    const storage = parseInt(data.member);
-    const varName = this.evalMessage(data.varName, cache);
-    const member = this.getMember(storage, varName, cache);
+action: function(cache) {
+	const data = cache.actions[cache.index];
+	const storage = parseInt(data.channel);
+	const varName = this.evalMessage(data.varName, cache);
+	const channel = this.getChannel(storage, varName, cache);
 
-    const storage2 = parseInt(data.channel);
-    const varName2 = this.evalMessage(data.varName2, cache);
-    const channel = this.getVoiceChannel(storage2, varName2, cache);
-		const reason = this.evalMessage(data.reason, cache);
+	const storage2 = parseInt(data.member);
+	const varName2 = this.evalMessage(data.varName2, cache);
+	const member = this.getMember(storage2, varName2, cache);
 
-		if(Array.isArray(member)) {
-			this.callListFunc(member.map((m) => m.voice), "setChannel", [channel, reason]).then(() => this.callNextAction(cache));
-		} else if(this.dest(member, "voice", "setChannel")) {
-			member.voice.setChannel(channel, reason)
-				.then(() => this.callNextAction(cache))
-				.catch(this.displayError.bind(this, data, cache));
+	if(Array.isArray(member)) {
+		this.callListFunc(member, 'setVoiceChannel', [channel]).then(function() {
 			this.callNextAction(cache);
-		}
-	},
+		}.bind(this));
+	} else if(member && member.setVoiceChannel) {
+		member.setVoiceChannel(channel).then(function() {
+			this.callNextAction(cache);
+		}.bind(this)).catch(this.displayError.bind(this, data, cache));
+	} else {
+		this.callNextAction(cache);
+	}
+},
 
-	//---------------------------------------------------------------------
-	// Action Bot Mod
-	//
-	// Upon initialization of the bot, this code is run. Using the bot's
-	// DBM namespace, one can add/modify existing functions if necessary.
-	// In order to reduce conflictions between mods, be sure to alias
-	// functions you wish to overwrite.
-	//---------------------------------------------------------------------
+//---------------------------------------------------------------------
+// Action Bot Mod
+//
+// Upon initialization of the bot, this code is run. Using the bot's
+// DBM namespace, one can add/modify existing functions if necessary.
+// In order to reduce conflictions between mods, be sure to alias
+// functions you wish to overwrite.
+//---------------------------------------------------------------------
 
-	mod: function() {}
+mod: function(DBM) {
+}
+
 }; // End of module
